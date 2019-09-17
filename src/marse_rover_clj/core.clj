@@ -32,6 +32,27 @@ LLFFFLFLFL")
                              :orientation orient}
                :instructions (-> instructions-str string/trim seq)})))))
 
+(defmulti process-instruction (fn [robot-state instr] instr))
+
+(defmethod process-instruction \L
+  [robot-state _instr]
+  (update robot-state
+         :orientation
+         ;; map implements the function interface by doing a lookup
+         {\N \W
+          \W \S
+          \S \E
+          \E \N}))
+
+(defmethod process-instruction \R
+  [robot-state _instr]
+  (update robot-state
+          :orientation
+          {\N \E
+           \E \S
+           \S \W
+           \W \N}))
+
 
 (defn -main [& args]
   []
