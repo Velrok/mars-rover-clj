@@ -29,7 +29,7 @@ LLFFFLFLFL")
                                      (string/split #" "))]
               {:robot-state {:x (Integer/parseInt x)
                              :y (Integer/parseInt y)
-                             :orientation orient}
+                             :orientation (first orient)} ;; string to char
                :instructions (-> instructions-str string/trim seq)})))))
 
 (defmulti process-instruction (fn [robot-state instr] instr))
