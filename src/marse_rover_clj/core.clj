@@ -84,5 +84,8 @@ LLFFFLFLFL")
     ;; [ ] print final state
     ;; [ ] keep track of lost robots between robot runs (positon and orientaion sent)
     ;; [ ] ignore instructions that got a robot lost before
-    [:world {:x top-x :y top-y}
-     :robots (take 2 robot-data)]))
+    (doseq [{:keys [robot-state instructions]} (take 1 robot-data)]
+      (let [{:keys [x y orientation lost?]} (reduce process-instruction
+                                                    robot-state
+                                                    instructions)]
+        (println x y orientation (if lost? "LOST" ""))))))
