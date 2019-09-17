@@ -53,6 +53,17 @@ LLFFFLFLFL")
            \S \W
            \W \N}))
 
+(defmethod process-instruction \F
+  [{:keys [orientation] :as robot-state} _instr]
+  (let [[dx dy] ({\N [ 0  1]
+                  \W [-1  0]
+                  \S [ 0 -1]
+                  \E [ 1  0]}
+                 orientation)]
+    (-> robot-state
+        (update :x #(+ % dx))
+        (update :y #(+ % dy)))))
+
 
 (defn -main [& args]
   []

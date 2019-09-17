@@ -14,3 +14,16 @@
                      {:orientation \N}
                      (seq "RRRR")))))
 
+(deftest go-in-a-right-circle
+  (is (= [{:x 1, :y 1, :orientation \E}
+          {:x 1, :y 1, :orientation \S}
+          {:x 1, :y 0, :orientation \S}
+          {:x 1, :y 0, :orientation \W}
+          {:x 0, :y 0, :orientation \W}
+          {:x 0, :y 0, :orientation \N}
+          {:x 0, :y 1, :orientation \N}
+          {:x 0, :y 1, :orientation \E}
+          {:x 1, :y 1, :orientation \E}]
+         (reductions process-instruction
+                     {:x 1 :y 1 :orientation \E}
+                     (seq "RFRFRFRF")))))
