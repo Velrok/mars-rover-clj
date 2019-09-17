@@ -45,5 +45,12 @@ LLFFFLFLFL")
     ;;            :instructions (\R \F \R \F \R \F \R \F)} 
     ;;           {:robot-state {:x 3, :y 2, :orientation "N"},
     ;;            :instructions (\F \R \R \F \L \L \F \F \R \R \F \L \L)})]
+
+    ;; todo
+    ;; [ ] setup a robot in the world
+    ;; [ ] keep reducing over instructions for a robot
+    ;; [ ] print final state
+    ;; [ ] keep track of lost robots between robot runs (positon and orientaion sent)
+    ;; [ ] ignore instructions that got a robot lost before
     [:world {:x top-x :y top-y}
      :robots (take 2 robot-data)]))
