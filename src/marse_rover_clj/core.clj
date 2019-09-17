@@ -68,8 +68,8 @@ LLFFFLFLFL")
 (defn -main [& args]
   []
   ; use repl to keep evaluating
-  (let [[top-right-coord & more] (string/split sample-input #"\n") ; (line-seq *in*)
-        [top-x top-y] (parse-world-def top-right-coord)
+  (let [[_top-right-coord & more] (string/split sample-input #"\n") ; (line-seq *in*)
+        ;[top-x top-y] (parse-world-def top-right-coord)
         robot-data    (parse-robot-data more)]
     ;; input parsing done
     ;; [:world {:x 5, :y 3}
@@ -79,9 +79,10 @@ LLFFFLFLFL")
     ;;            :instructions (\F \R \R \F \L \L \F \F \R \R \F \L \L)})]
 
     ;; todo
-    ;; [ ] setup a robot in the world
-    ;; [ ] keep reducing over instructions for a robot
-    ;; [ ] print final state
+    ;; [x] setup a robot in the world
+    ;; [x] keep reducing over instructions for a robot
+    ;; [x] print final state
+    ;; [ ] detect robots fallig of the map
     ;; [ ] keep track of lost robots between robot runs (positon and orientaion sent)
     ;; [ ] ignore instructions that got a robot lost before
     (doseq [{:keys [robot-state instructions]} (take 1 robot-data)]
