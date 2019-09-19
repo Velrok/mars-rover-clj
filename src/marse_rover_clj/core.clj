@@ -69,7 +69,7 @@ LLFFFLFLFL")
                  orientation)
         x' (+ x dx)
         y' (+ y dy)
-        lost? (on-grid? world {:x x' :y y'})]
+        lost? (not (on-grid? world {:x x' :y y'}))]
 
     (if lost?
       (assoc-in state [:robot :lost] true)
