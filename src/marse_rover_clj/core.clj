@@ -18,7 +18,7 @@ LLFFFLFLFL")
            string/trim
            (string/split #" "))))
 
-(defn parse-robot-data
+(defn- parse-robot-data
   [lines]
   (->> lines
        (remove empty?)
