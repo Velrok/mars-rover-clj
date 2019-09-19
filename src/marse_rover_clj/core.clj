@@ -32,11 +32,11 @@ LLFFFLFLFL")
                              :orientation (first orient)} ;; string to char
                :instructions (-> instructions-str string/trim seq)})))))
 
-(defmulti process-instruction (fn [robot-state instr] instr))
+(defmulti process-instruction (fn [_ instr] instr))
 
 (defmethod process-instruction \L
-  [robot-state _instr]
-  (update robot-state
+  [{:keys [_ robot]} _instr]
+  (update robot
          :orientation
          ;; map implements the function interface by doing a lookup
          {\N \W
@@ -45,8 +45,8 @@ LLFFFLFLFL")
           \E \N}))
 
 (defmethod process-instruction \R
-  [robot-state _instr]
-  (update robot-state
+  [{:keys [_ robot]} _instr]
+  (update robot
           :orientation
           {\N \E
            \E \S
@@ -54,13 +54,14 @@ LLFFFLFLFL")
            \W \N}))
 
 (defmethod process-instruction \F
-  [{:keys [orientation] :as robot-state} _instr]
-  (let [[dx dy] ({\N [ 0  1]
+  [{:keys [world robot]} _instr]
+  (let [{:keys [orientation]} robot
+        [dx dy] ({\N [ 0  1]
                   \W [-1  0]
                   \S [ 0 -1]
                   \E [ 1  0]}
                  orientation)]
-    (-> robot-state
+    (-> robot
         (update :x #(+ % dx))
         (update :y #(+ % dy)))))
 
@@ -69,7 +70,7 @@ LLFFFLFLFL")
   []
   ; use repl to keep evaluating
   (let [[_top-right-coord & more] (string/split sample-input #"\n") ; (line-seq *in*)
-        ;[top-x top-y] (parse-world-def top-right-coord)
+        [top-x top-y] (parse-world-def top-right-coord)
         robot-data    (parse-robot-data more)]
     ;; input parsing done
     ;; [:world {:x 5, :y 3}
@@ -87,6 +88,7 @@ LLFFFLFLFL")
     ;; [ ] ignore instructions that got a robot lost before
     (doseq [{:keys [robot-state instructions]} (take 1 robot-data)]
       (let [{:keys [x y orientation lost?]} (reduce process-instruction
-                                                    robot-state
+                                                    {:world {:x top-x :y top-y}
+                                                     :robot robot-state}
                                                     instructions)]
         (println x y orientation (if lost? "LOST" ""))))))
