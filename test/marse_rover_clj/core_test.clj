@@ -1,29 +1,42 @@
 (ns marse-rover-clj.core-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [clojure.test :refer [deftest is run-tests]]
             [marse-rover-clj.core :refer [process-instruction]]))
 
 (deftest robot-turning-left-cicle
-  (is (= [{:orientation \N} {:orientation \W} {:orientation \S} {:orientation \E} {:orientation \N}]
+  (is (= [{:robot {:orientation \N}}
+          {:robot {:orientation \W}}
+          {:robot {:orientation \S}}
+          {:robot {:orientation \E}}
+          {:robot {:orientation \N}}]
          (reductions process-instruction
-                     {:orientation \N}
+                     {:robot {:orientation \N}}
                      (seq "LLLL")))))
 
 (deftest robot-turning-right-cicle
-  (is (= [{:orientation \N} {:orientation \E} {:orientation \S} {:orientation \W} {:orientation \N}]
+  (is (= [{:robot {:orientation \N}}
+          {:robot {:orientation \E}}
+          {:robot {:orientation \S}}
+          {:robot {:orientation \W}}
+          {:robot {:orientation \N}}]
          (reductions process-instruction
-                     {:orientation \N}
+                     {:robot {:orientation \N}}
                      (seq "RRRR")))))
 
 (deftest go-in-a-right-circle
-  (is (= [{:x 1, :y 1, :orientation \E}
-          {:x 1, :y 1, :orientation \S}
-          {:x 1, :y 0, :orientation \S}
-          {:x 1, :y 0, :orientation \W}
-          {:x 0, :y 0, :orientation \W}
-          {:x 0, :y 0, :orientation \N}
-          {:x 0, :y 1, :orientation \N}
-          {:x 0, :y 1, :orientation \E}
-          {:x 1, :y 1, :orientation \E}]
+  (is (= [{:world {:width 3, :height 3}, :robot {:x 1, :y 1, :orientation \E}}
+          {:world {:width 3, :height 3}, :robot {:x 1, :y 1, :orientation \S}}
+          {:world {:width 3, :height 3}, :robot {:x 1, :y 0, :orientation \S}}
+          {:world {:width 3, :height 3}, :robot {:x 1, :y 0, :orientation \W}}
+          {:world {:width 3, :height 3}, :robot {:x 0, :y 0, :orientation \W}}
+          {:world {:width 3, :height 3}, :robot {:x 0, :y 0, :orientation \N}}
+          {:world {:width 3, :height 3}, :robot {:x 0, :y 1, :orientation \N}}
+          {:world {:width 3, :height 3}, :robot {:x 0, :y 1, :orientation \E}}
+          {:world {:width 3, :height 3}, :robot {:x 1, :y 1, :orientation \E}}]
          (reductions process-instruction
-                     {:x 1 :y 1 :orientation \E}
+                     {:world {:width 3 :height 3}
+                      :robot {:x 1 :y 1 :orientation \E}}
                      (seq "RFRFRFRF")))))
+
+(comment
+  (run-tests)
+  )
