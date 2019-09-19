@@ -35,42 +35,54 @@ LLFFFLFLFL")
 (defmulti process-instruction (fn [_ instr] instr))
 
 (defmethod process-instruction \L
-  [{:keys [_ robot]} _instr]
-  (update robot
-         :orientation
-         ;; map implements the function interface by doing a lookup
-         {\N \W
-          \W \S
-          \S \E
-          \E \N}))
+  [state _instr]
+  (update-in state
+             [:robot :orientation]
+             ;; map implements the function interface by performing a key lookup
+             {\N \W
+              \W \S
+              \S \E
+              \E \N}))
 
 (defmethod process-instruction \R
-  [{:keys [_ robot]} _instr]
-  (update robot
-          :orientation
-          {\N \E
-           \E \S
-           \S \W
-           \W \N}))
+  [state _instr]
+  (update-in state
+             [:robot :orientation]
+             {\N \E
+              \E \S
+              \S \W
+              \W \N}))
+
+(defn- on-grid?
+  [{:keys [width height]}
+   {:keys [x y]}]
+  (and (<= 0 x (dec width))
+       (<= 0 y (dec height))))
 
 (defmethod process-instruction \F
-  [{:keys [world robot]} _instr]
-  (let [{:keys [orientation]} robot
+  [{:keys [world robot] :as state} _instr]
+  (let [{:keys [x y orientation]} robot
         [dx dy] ({\N [ 0  1]
                   \W [-1  0]
                   \S [ 0 -1]
                   \E [ 1  0]}
-                 orientation)]
-    (-> robot
-        (update :x #(+ % dx))
-        (update :y #(+ % dy)))))
+                 orientation)
+        x' (+ x dx)
+        y' (+ y dy)
+        lost? (on-grid? world {:x x' :y y'})]
+
+    (if lost?
+      (assoc-in state [:robot :lost] true)
+      (-> state
+          (assoc-in [:robot :x] x')
+          (assoc-in [:robot :y] y')))))
 
 
 (defn -main [& args]
   []
   ; use repl to keep evaluating
-  (let [[_top-right-coord & more] (string/split sample-input #"\n") ; (line-seq *in*)
-        [top-x top-y] (parse-world-def top-right-coord)
+  (let [[top-right-coord & more] (string/split sample-input #"\n") ; (line-seq *in*)
+        [max-x max-y] (parse-world-def top-right-coord)
         robot-data    (parse-robot-data more)]
     ;; input parsing done
     ;; [:world {:x 5, :y 3}
@@ -88,7 +100,8 @@ LLFFFLFLFL")
     ;; [ ] ignore instructions that got a robot lost before
     (doseq [{:keys [robot-state instructions]} (take 1 robot-data)]
       (let [{:keys [x y orientation lost?]} (reduce process-instruction
-                                                    {:world {:x top-x :y top-y}
+                                                    {:world {:width  (inc max-x)
+                                                             :height (inc max-y)}
                                                      :robot robot-state}
                                                     instructions)]
         (println x y orientation (if lost? "LOST" ""))))))
