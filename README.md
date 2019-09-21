@@ -1,14 +1,11 @@
 # marse-rover-clj
 
-A Clojure library designed to ... well, that part is up to you.
+A clojure implementation of the marse rover challange.
 
-## Usage
 
-FIXME
+## How to run
 
-## License
+`./run.sh`
 
-Copyright © 2019 FIXME
+Will use leiningen if installed or docker as a fallback.
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
