@@ -1,6 +1,6 @@
-# marse-rover-clj
+# mars-rover-clj
 
-A clojure implementation of the marse rover challange.
+A clojure implementation of the mars rover challenge.
 
 
 ## How to run
