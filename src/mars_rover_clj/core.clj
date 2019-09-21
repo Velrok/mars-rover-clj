@@ -1,4 +1,4 @@
-(ns marse-rover-clj.core
+(ns mars-rover-clj.core
   (:require
     [clojure.java.io :as io]
     [clojure.string :as string]))
