@@ -93,6 +93,8 @@ LLFFFLFLFL")
           (assoc-in [:robot :y] y')))))
 
 (defn ignore-lost-robots
+  "Higher order function, wrapping a fn that can handle instructions,
+  but only calls it if the robot is still on the map."
   [process-instruction-fn]
   (fn [state instruction]
     (if (get-in state [:robot :lost])
@@ -107,6 +109,7 @@ LLFFFLFLFL")
   (let [[top-right-coord & more] (line-seq (io/reader *in*))
         [max-x max-y] (parse-world-def top-right-coord)
         robot-data    (parse-robot-data more)
+        ;; Todo: validate parsed data conforms to expected schema
         robot-sents   (atom #{})]
     (doseq [{:keys [robot-state instructions]} robot-data]
       (let [{:keys [robot sents]} (reduce (ignore-lost-robots process-instruction)
@@ -127,3 +130,20 @@ LLFFFLFLFL")
 ;; [x] keep track of lost robots between robot runs (positon and orientaion sent)
 ;; [x] ignore instructions that got a robot lost before
 
+;; [ ] monitoring
+;;     CPU, Memory, 
+;;     process time per instruction,
+;;     process time per robot,
+;;     how many robots are we processing (busines),
+;;     how many robots are we loosing (busines)
+;; [ ] load test (how many instructions per sec can we process?)
+
+;; [ ] specing robot state and instructions
+;; [ ] property testing
+;;     - robots always have coordinats that are on the grid given:
+;;       - a finat grid
+;;       - a sequence of known instructions
+;;     - given any of the instructions L or R the robot is in the same positon
+;;     - given the instruction F the robot is in a different position or lost
+;;     - given a lost robot its state stays the same regardless of the remaining instuction seq
+;;     - given a finite grid with sents on all edges a robot will never get lost, given any instruction seq
