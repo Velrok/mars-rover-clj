@@ -1,5 +1,6 @@
 (ns marse-rover-clj.core
   (:require
+    [clojure.java.io :as io]
     [clojure.string :as string]))
 
 (def sample-input
@@ -60,7 +61,7 @@ LLFFFLFLFL")
        (<= 0 y (dec height))))
 
 (defmethod process-instruction \F
-  [{:keys [world robot] :as state} _instr]
+  [{:keys [world robot sents] :as state} _instr]
   (let [{:keys [x y orientation]} robot
         [dx dy] ({\N [ 0  1]
                   \W [-1  0]
@@ -69,39 +70,60 @@ LLFFFLFLFL")
                  orientation)
         x' (+ x dx)
         y' (+ y dy)
-        lost? (not (on-grid? world {:x x' :y y'}))]
+        moving-off-grid (not (on-grid? world {:x x' :y y'}))]
 
-    (if lost?
-      (assoc-in state [:robot :lost] true)
+    (cond
+      (and moving-off-grid
+           (contains?
+             (set sents)
+             {:x x :y y}))
+      ;; we have been warned -> ignore command
+      state
+
+      moving-off-grid
+      (-> state
+          (update-in [:sents]
+                     conj
+                     (select-keys robot [:x :y]))
+          (assoc-in [:robot :lost] true))
+
+      :otherwise
       (-> state
           (assoc-in [:robot :x] x')
           (assoc-in [:robot :y] y')))))
 
+(defn ignore-lost-robots
+  [process-instruction-fn]
+  (fn [state instruction]
+    (if (get-in state [:robot :lost])
+      state
+      (process-instruction-fn
+        state
+        instruction))))
+
 
 (defn -main [& args]
   []
-  ; use repl to keep evaluating
-  (let [[top-right-coord & more] (string/split sample-input #"\n") ; (line-seq *in*)
+  (let [[top-right-coord & more] (line-seq (io/reader *in*))
         [max-x max-y] (parse-world-def top-right-coord)
-        robot-data    (parse-robot-data more)]
-    ;; input parsing done
-    ;; [:world {:x 5, :y 3}
-    ;;  :robots ({:robot-state {:x 1, :y 1, :orientation "E"},
-    ;;            :instructions (\R \F \R \F \R \F \R \F)} 
-    ;;           {:robot-state {:x 3, :y 2, :orientation "N"},
-    ;;            :instructions (\F \R \R \F \L \L \F \F \R \R \F \L \L)})]
+        robot-data    (parse-robot-data more)
+        robot-sents   (atom #{})]
+    (doseq [{:keys [robot-state instructions]} robot-data]
+      (let [{:keys [robot sents]} (reduce (ignore-lost-robots process-instruction)
+                                          {:world {:width  (inc max-x)
+                                                   :height (inc max-y)}
+                                           :sents @robot-sents
+                                           :robot robot-state}
+                                          instructions)
+            {:keys [x y orientation lost]} robot]
+        (reset! robot-sents sents) ;; reset global state to include latest findings of this robot
+        (println x y orientation (if lost "LOST" ""))))))
 
-    ;; todo
-    ;; [x] setup a robot in the world
-    ;; [x] keep reducing over instructions for a robot
-    ;; [x] print final state
-    ;; [ ] detect robots fallig of the map
-    ;; [ ] keep track of lost robots between robot runs (positon and orientaion sent)
-    ;; [ ] ignore instructions that got a robot lost before
-    (doseq [{:keys [robot-state instructions]} (take 1 robot-data)]
-      (let [{:keys [x y orientation lost?]} (reduce process-instruction
-                                                    {:world {:width  (inc max-x)
-                                                             :height (inc max-y)}
-                                                     :robot robot-state}
-                                                    instructions)]
-        (println x y orientation (if lost? "LOST" ""))))))
+;; todo
+;; [x] setup a robot in the world
+;; [x] keep reducing over instructions for a robot
+;; [x] print final state
+;; [x] detect robots fallig of the map
+;; [x] keep track of lost robots between robot runs (positon and orientaion sent)
+;; [x] ignore instructions that got a robot lost before
+
