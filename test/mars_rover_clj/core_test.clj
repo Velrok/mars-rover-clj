@@ -1,6 +1,6 @@
 (ns mars-rover-clj.core-test
   (:require [clojure.test :refer [deftest is run-tests]]
-            [marse-rover-clj.core :refer [process-instruction ignore-lost-robots]]))
+            [mars-rover-clj.core :refer [process-instruction ignore-lost-robots]]))
 
 (deftest robot-turning-left-cicle
   (is (= [{:robot {:orientation \N}}
